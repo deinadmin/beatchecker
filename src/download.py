@@ -35,6 +35,14 @@ def _build_options(output_path: pathlib.Path) -> dict[str, t.Any]:
         "no_warnings": True,
         "noplaylist": True,
         "outtmpl": output_template,
+        # Bypass YouTube bot detection (iOS client is less restricted)
+        "extractor_args": {
+            "youtube": {
+                "player_client": ["ios", "android"],
+                "player_skip": ["webpage", "js"],
+                "skip": ["hls", "dash"],
+            }
+        },
         "postprocessors": [
             {
                 "key": "FFmpegExtractAudio",
@@ -124,7 +132,19 @@ def download_youtube_audio(url: str, output_dir: str | pathlib.Path = config.DOW
     clean_directory(output_path)
 
     try:
-        base_options: dict[str, t.Any] = {"quiet": True, "no_warnings": True, "noplaylist": True}
+        base_options: dict[str, t.Any] = {
+            "quiet": True,
+            "no_warnings": True,
+            "noplaylist": True,
+            # Bypass YouTube bot detection (iOS client is less restricted)
+            "extractor_args": {
+                "youtube": {
+                    "player_client": ["ios", "android"],
+                    "player_skip": ["webpage", "js"],
+                    "skip": ["hls", "dash"],
+                }
+            },
+        }
         if FFMPEG_BINARY is not None:
             base_options["ffmpeg_location"] = str(FFMPEG_BINARY)
 

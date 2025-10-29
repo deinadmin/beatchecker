@@ -308,7 +308,9 @@ def run(host: str | None = None, port: int | None = None) -> None:
     port = port or config.API_PORT
 
     logger.info("Starting BeatChecker service on %s:%s", host, port)
-    uvicorn.run(app, host=host, port=port, log_level="info")
+    # log_config=None prevents uvicorn from configuring logging
+    # (fixes TTY detection error in PyInstaller windowless mode)
+    uvicorn.run(app, host=host, port=port, log_level="info", log_config=None)
 
 
 if __name__ == "__main__":  # pragma: no cover

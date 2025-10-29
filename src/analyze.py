@@ -42,7 +42,8 @@ def detect_bpm(audio_path: str | pathlib.Path) -> float:
     try:
         signal, sample_rate = librosa.load(path, sr=config.TARGET_SAMPLING_RATE)
         tempo, _ = librosa.beat.beat_track(y=signal, sr=sample_rate)
-        return round(float(tempo))
+        # Use floor + 0.5 for consistent rounding (always rounds .5 up)
+        return int(float(tempo) + 0.5)
     except Exception as exc:  # pragma: no cover - librosa I/O errors
         raise AnalysisError("Could not detect BPM from audio file.") from exc
 

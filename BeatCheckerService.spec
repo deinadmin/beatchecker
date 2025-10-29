@@ -1,10 +1,35 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+import sys
+import platform
+from pathlib import Path
+
+
+# SPECPATH is provided by PyInstaller (directory containing this spec file)
+project_dir = Path(SPECPATH).resolve()
+resources_dir = project_dir / "resources" / "ffmpeg"
+
+# Check for platform-specific ffmpeg binary
+extra_binaries: list[tuple[str, str]] = []
+if platform.system() == "Windows":
+    ffmpeg_binary = resources_dir / "ffmpeg.exe"
+elif platform.system() == "Darwin":  # macOS
+    ffmpeg_binary = resources_dir / "ffmpeg"
+else:  # Linux or other
+    ffmpeg_binary = resources_dir / "ffmpeg"
+
+if ffmpeg_binary.exists():
+    extra_binaries.append((str(ffmpeg_binary), '.'))
+    print(f"[BeatCheckerService] Bundling ffmpeg from: {ffmpeg_binary}", file=sys.stderr)
+else:
+    print(f"[BeatCheckerService] WARNING: ffmpeg binary not found at {ffmpeg_binary}", file=sys.stderr)
+    print("[BeatCheckerService] The app will attempt to use system ffmpeg from PATH", file=sys.stderr)
+
 
 a = Analysis(
     ['main.py'],
-    pathex=[],
-    binaries=[('/opt/homebrew/bin/ffmpeg', '.')],
+    pathex=[str(project_dir)],
+    binaries=extra_binaries,
     datas=[],
     hiddenimports=[],
     hookspath=[],
@@ -42,15 +67,18 @@ coll = COLLECT(
     upx_exclude=[],
     name='BeatCheckerService',
 )
-app = BUNDLE(
-    coll,
-    name='BeatCheckerService.app',
-    icon=None,
-    bundle_identifier='de.designedbycarl.beatchecker.service',
-    info_plist={
-        'CFBundleDisplayName': 'BeatChecker Service',
-        'CFBundleName': 'BeatChecker Service',
-        'LSUIElement': True,      # hide Dock icon and App Switcher entry
-        'NSUIElement': True,
-    },
-)
+
+# macOS-specific: Create .app bundle
+if platform.system() == "Darwin":
+    app = BUNDLE(
+        coll,
+        name='BeatCheckerService.app',
+        icon=None,
+        bundle_identifier='de.designedbycarl.beatchecker.service',
+        info_plist={
+            'CFBundleDisplayName': 'BeatChecker Service',
+            'CFBundleName': 'BeatChecker Service',
+            'LSUIElement': True,      # hide Dock icon and App Switcher entry
+            'NSUIElement': True,
+        },
+    )
