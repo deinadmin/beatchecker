@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>BeatChecker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 360px;
+            min-height: 280px;
+            font-family: 'Roboto', 'Arial', sans-serif;
+            background: #1a1a1a;
+            color: #e8eaed;
+            padding: 0;            
+            user-select: none;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2a2d3e 0%, #1e1f2e 100%);
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .service-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #9aa0a6;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #5f6368;
+        }
+
+        .status-indicator.running {
+            background: #1db954;
+            box-shadow: 0 0 8px rgba(29, 185, 84, 0.4);
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .license-section {
+            margin-bottom: 16px;
+        }
+
+        .license-status {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .license-status.active {
+            background: rgba(29, 185, 84, 0.1);
+            border: 1px solid rgba(29, 185, 84, 0.3);
+        }
+
+        .license-status.inactive {
+            background: rgba(234, 67, 53, 0.1);
+            border: 1px solid rgba(234, 67, 53, 0.3);
+        }
+
+        .license-info h3 {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .license-info p {
+            font-size: 12px;
+            color: #9aa0a6;
+            margin: 0;
+        }
+
+        .license-badge {
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .license-badge.active {
+            background: rgba(29, 185, 84, 0.2);
+            color: #1db954;
+        }
+
+        .license-badge.inactive {
+            background: rgba(234, 67, 53, 0.2);
+            color: #ea4335;
+        }
+
+        .license-details {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+
+        .license-detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 13px;
+        }
+
+        .license-detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .license-detail-label {
+            color: #9aa0a6;
+        }
+
+        .license-detail-value {
+            color: #e8eaed;
+            font-weight: 500;
+        }
+
+        .activation-form {
+            margin-top: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 6px;
+            color: #9aa0a6;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #e8eaed;
+            font-size: 13px;
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3ea6ff;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        #refreshContainer .btn {
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: #3ea6ff;
+            color: #000;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #65b8ff;
+        }
+
+        .btn-primary:disabled {
+            background: rgba(62, 166, 255, 0.3);
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: rgba(234, 67, 53, 0.15);
+            color: #ea4335;
+            border: 1px solid rgba(234, 67, 53, 0.3);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(234, 67, 53, 0.25);
+            border-color: rgba(234, 67, 53, 0.5);
+        }
+
+        .btn-secondary:disabled {
+            background: rgba(234, 67, 53, 0.1);
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .message.error {
+            background: rgba(234, 67, 53, 0.1);
+            border: 1px solid rgba(234, 67, 53, 0.3);
+            color: #ea4335;
+        }
+
+        .message.success {
+            background: rgba(29, 185, 84, 0.1);
+            border: 1px solid rgba(29, 185, 84, 0.3);
+            color: #1db954;
+        }
+
+        .error-text {
+            color: #ea4335 !important;
+            font-weight: 500;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #9aa0a6;
+        }
+
+        .loading-spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(62, 166, 255, 0.3);
+            border-top: 3px solid #3ea6ff;
+            border-radius: 50%;
+            margin: 0 auto 12px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .refresh-container {
+            margin-bottom: 16px;
+            display: flex;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>BeatChecker</h1>
+        <div class="service-status">
+            <span class="status-indicator" id="serviceIndicator"></span>
+            <span id="serviceStatus">Checking service...</span>
+        </div>
+    </div>
+
+    <div class="content">
+        <div id="loadingView" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Loading license status...</p>
+        </div>
+
+        <div id="licenseView" class="hidden">
+            <div class="license-section">
+                <div class="license-status" id="licenseStatus">
+                    <div class="license-info">
+                        <h3 id="licenseTitle">License Status</h3>
+                        <p id="licenseMessage"></p>
+                    </div>
+                    <div class="license-badge" id="licenseBadge">Unknown</div>
+                </div>
+
+                <div id="licenseDetails" class="license-details hidden"></div>
+
+                <div id="messageContainer"></div>
+
+                <div id="refreshContainer" class="hidden refresh-container">
+                    <button id="refreshBtn" class="btn btn-primary">Refresh</button>
+                    <button id="removeBtn" class="btn btn-secondary">Remove</button>
+                </div>
+
+                <div id="activationForm" class="activation-form hidden">
+                    <div class="form-group">
+                        <label class="form-label" for="licenseKeyInput">License Key</label>
+                        <input type="text" id="licenseKeyInput" class="form-input" placeholder="XXXXX-XXXXX-XXXXX-XXXXX-XXXXX">
+                    </div>
+                    <button id="activateBtn" class="btn btn-primary">Activate License</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>
